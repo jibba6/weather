@@ -1,17 +1,34 @@
 var apiKey = "75a4001fc2cc51b43800eaa273e443f3"
-
+var pastSearchEl = $("#pastSearch")
+var searchHistory = JSON.parse(localStorage.getItem("history")) || []
 function getCity (){
-    var city = $("#searchInput").val()
+  if ($(this).attr("id")==="search"){
+
+    var city = $("#searchInput").val();
+    searchHistory.push(city)
+    localStorage.setItem("history" , JSON.stringify(searchHistory));
+  } else {
+    var city = $(this).text()
+  }
+    renderButtons()
     var url = `https://api.openweathermap.org/geo/1.0/direct?q=${city}&appid=${apiKey}`
     fetch(url).then(response => response.json())
     .then(data => {
         getWeather(data[0].lat, data[0].lon);
         getFiveDay(data[0].lat, data [0].lon);
-})
+});
         
 };
 
-
+function renderButtons() {
+  pastSearchEl.empty()
+  console.log(searchHistory)
+  searchHistory.forEach(function(city){
+    var button = $("<button>")
+    button.text(city)
+    pastSearchEl.append(button)
+  })
+};
 
 function getWeather ( lat , lon){
     var url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=imperial`
@@ -59,12 +76,13 @@ function getFiveDay ( lat , lon){
 
 
 
+renderButtons()
 
 
 
 
 
 
-
-
+pastSearchEl.on("click" , "button" , getCity);
 $("#search").on("click",getCity);
+ 
